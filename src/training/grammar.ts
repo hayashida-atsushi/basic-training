@@ -1,6 +1,10 @@
-/* 例：3を返すメソッド*/
-export const exampleMethod = () => {
-  return 3;
+/* 例 */
+export function sum(a: number, b: number) {
+  return a + b;
+}
+/* 例2 */
+export const multiply = (a: number, b: number): number => {
+  return a * b;
 };
 
 /* 否定・or・andをそれぞれ記述してください */
@@ -26,9 +30,3 @@ export const exampleMethod = () => {
 /* オブジェクトの特定のプロパティに再代入できないようにしてください*/
 
 /* オブジェクトのすべてのプロパティに再代入できないようにしてください*/
-
-/* 最終問題 */
-
-export function sum(a: number, b: number) {
-  return a + b;
-}
