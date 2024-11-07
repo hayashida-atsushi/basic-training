@@ -28,3 +28,7 @@ export const exampleMethod = () => {
 /* オブジェクトのすべてのプロパティに再代入できないようにしてください*/
 
 /* 最終問題 */
+
+export function sum(a: number, b: number) {
+  return a + b;
+}
