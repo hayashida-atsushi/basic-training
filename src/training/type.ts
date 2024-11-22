@@ -6,4 +6,20 @@
 
 /* 'aaa'または'bbb'の値のみを許容する型を作成してください */
 
-/*  あるオブジェクトの型を返却してください */
+/*  あるオブジェクトの型を返却(取得)してください */
+
+/* 以下のコードを改変して、エラーを出さずに代入してください。ただし型定義はいじらないこと。 */
+
+type example = {
+    aaa?:number;
+};
+
+type example2 = {
+    bbb:number;
+}
+const aaaa: example = {aaa:2};
+const bbbb: example2 = {bbb:1}
+
+bbbb.bbb = aaaa.aaa;
+
+/* */
