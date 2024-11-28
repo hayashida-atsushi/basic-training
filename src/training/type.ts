@@ -4,11 +4,17 @@ type Sample1 = {
     num: number;
     flag: boolean;
 }
-type Sample2 = {
+const Sample2: {
     str: string;
     num: number;
     flag: boolean;
-}
+} = {
+    str: "文",
+    num: 10,
+    flag: true
+};
+// 中身は変更可能
+Sample2.num = 20;
 
 /* 上のオブジェクトに新たなプロパティを追加した型を作成してください */
 //インターセクション型を使う。
@@ -18,7 +24,7 @@ type Sample1AddObj = Sample1 & {
 
 /* 上のオブジェクトから適当なプロパティを削除した型を作成してください */
 //Omitを使う。
-type SampleWithoutStr = Omit<Sample2, "str">;
+type SampleWithoutStr = Omit<Sample1, "str">;
 
 /* 'aaa'または'bbb'の値のみを許容する型を作成してください */
 type xxx = 'aaa' | 'bbb';
