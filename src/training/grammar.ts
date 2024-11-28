@@ -8,7 +8,14 @@ export const multiply = (a: number, b: number): number => {
 };
 
 /* 否定・or・andをそれぞれ記述してください */
+/*
 function branchProcess(x: number, y: number) {
+  if(x !== y) console.log("x!=y");
+  if(x >= 10 || y >= 10) console.log("x>=10 or y>=10");
+  if(x >= 10 && y >= 10) console.log("x>=10 and y>=10");
+}
+*/
+const branchProcess = (x: number, y: number): void => {  
   if(x !== y) console.log("x!=y");
   if(x >= 10 || y >= 10) console.log("x>=10 or y>=10");
   if(x >= 10 && y >= 10) console.log("x>=10 and y>=10");
@@ -70,9 +77,21 @@ const {str1: string1, flag: flag1} = obj1;
 console.log(string1,flag1);
 
 /* ループ処理3パターン */
+// for-of文によるループ処理
 for(const item in obj1) {
   console.log(item);
 }
+// for文によるループ処理
+const arr = ["a", "b", "c"];
+for(let i = 0; i < arr.length; i++) {
+  console.log(arr[i]);
+}
+
+// 配列のforEachメソッドを使う。
+arr.forEach((value, i) => {
+  console.log(value);
+});
+
 
 /* オプショナルチェーン */
 console.log(obj1?.str1);
@@ -80,11 +99,10 @@ let obj2: undefined | {str1: string};
 console.log(obj2?.str1);
 
 /* オブジェクトの特定のプロパティに再代入できないようにしてください*/
-let obj3: {
+const obj3: {
   str1: string;
   readonly str2: string;
-};
-obj3 = {
+} = {
   str1: "aaa",
   str2: "bbb"
 }
@@ -92,7 +110,7 @@ obj3.str1 = "xxx";
 obj3.str2 = "yyy";
 
 /* オブジェクトのすべてのプロパティに再代入できないようにしてください*/
-let obj4 = {
+const obj4 = {
   str1: "string"
 } as const;
 obj4.str1 = "STRING";
