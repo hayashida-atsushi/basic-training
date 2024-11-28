@@ -1,5 +1,3 @@
-import { Dayjs } from "dayjs";
-
 const dayjs = require('dayjs');
 
 /* functionを使ってメソッドを記述してください */
@@ -61,16 +59,24 @@ l45でyの参照先が変わったため、yでの変更がx1のプロパティ�
 
 /* 配列[a, b, c, ..., z]を受けとってconsoleにa [b, c, ..., z]と出力するメソッドを1行で記述してください。ただし型定義以外で[]を使わないこと。
 　 そのメソッドに[4, 5, 6, 7]をエラーをはかず、正常に動作するように渡してください。
+   組み込みメソッドを利用しない。
 */
 const numArray: number[] = [4, 5, 6, 7];
 
-function logOutput (...numArray: number[]) { console.log( numArray.shift(), numArray ) };
+/*
+const logOutput = (...numArray: number[]) => { console.log( numArray.shift(), numArray ) };
 logOutput(...numArray);
+*/
+const divideArray = (numArray: number[]) => {
+  const [numHead, ...restArray] = numArray;
+  console.log(numHead, restArray);
+}
+divideArray(numArray);
+
 
 /* dayjsをimportして、'yyyy-mm-dd': stringで受け取った日付を使って、その日付と同じ月の月末を'yyyy-mm-dd':stringで返すメソッドを作成してください。 */
-function dateFormatter(targetDate: string) {
+const dateFormatter = (targetDate: string): string => {
   const sourceDate: string = dayjs(targetDate).endOf('month').format('YYYY-MM-DD');
   return sourceDate;
 };
-
 console.log(dateFormatter('1999-11-14'));
