@@ -27,13 +27,82 @@ type Coupon = {
   amount: number;
 };
 
+const coupon_100: Coupon = { couponId: 1, couponName: "coupon_100",amount: 100 };
+const coupon_500: Coupon = { couponId: 2, couponName: "coupon_500", amount: 500 };
+const coupon_1000: Coupon = { couponId: 3, couponName: "coupon_1000", amount: 1000 };
+
 type Wallet = {
-  walletId;
-  username;
-  balance;
-  method;
-  transactionHistroy;
-  coupon;
+  walletId: number;
+  username: string;
+  balance: number;
+  method: 0 | 1 | 2;
+  transactionHistroy: Transaction[];
+  coupon?: Coupon[];
 };
 
-type Transaction = {};
+type Transaction = {
+   walletId: number;
+   paymentAmount: number;
+   transactionType: string;
+   method: 0 | 1 | 2;
+   transactionDate: Date;
+   balance: number;
+};
+
+export const userWallet: Wallet[] = [
+   {walletId:1, username: "田中一郎", balance: 10000, method: 1, transactionHistroy: []},
+   {walletId:2, username: "田中二郎", balance: 10000, method: 0, transactionHistroy: [], coupon: [coupon_100]},
+   {walletId:3, username: "田中三郎", balance: 10000, method: 2, transactionHistroy: [], coupon: [coupon_100, coupon_500]},
+   {walletId:4, username: "田中四郎", balance: 10000, method: 1, transactionHistroy: [], coupon: [coupon_100, coupon_1000]},
+   {walletId:5, username: "田中五郎", balance: 10000, method: 0, transactionHistroy: [], coupon: [coupon_100, coupon_500,coupon_1000]}
+];
+
+export const doSettlement = (walletId: number, paymentAmount: number): void => {
+
+   // 処理対象のウォレットのインデックスを所得する。
+   function getwalletId(): number {
+      for ( let i = 0; i < userWallet.length; i++ ) {
+         if (userWallet[i].walletId === walletId && userWallet[i].balance >= paymentAmount) {
+            return i;
+         }
+      }
+      return -999;
+   }
+   // 割引額を取得する。
+   function getCouponAmount(): number {
+      let maximunAmount = 0;
+      let targetCoupon = 0;
+      if (userWallet[targetWalletId].coupon) {
+         for (let i=0; i < userWallet[targetWalletId].coupon.length; i++) {
+            if( maximunAmount < userWallet[targetWalletId].coupon[i].amount) {
+               maximunAmount = userWallet[targetWalletId].coupon[i].amount;
+               targetCoupon = i;
+            }
+         }
+         userWallet[targetWalletId].coupon.splice(targetCoupon,1);
+      }
+      return maximunAmount;
+   }
+
+   const targetWalletId = getwalletId();
+   if (targetWalletId < 0) {
+      throw new Error("something wrong!");
+   }
+
+   const discountAmount = getCouponAmount();
+
+   // 残高更新
+   userWallet[targetWalletId].balance -= (paymentAmount - discountAmount);
+
+   // 取引履歴作成
+   const transactionAchievement: Transaction = {
+      walletId: targetWalletId,
+      paymentAmount: paymentAmount,
+      transactionType: "決済",
+      transactionDate: new Date(),
+      method: userWallet[targetWalletId].method,
+      balance: userWallet[targetWalletId].balance,
+   }
+
+   userWallet[targetWalletId].transactionHistroy.push(transactionAchievement);
+}

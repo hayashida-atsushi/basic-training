@@ -1,8 +1,12 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { doSettlement, userWallet } from './training/final';
 
 function App() {
+  doSettlement(1,1000);
+  doSettlement(5,1000);
+  console.log(userWallet);
   return (
     <div className="App">
       <header className="App-header">
