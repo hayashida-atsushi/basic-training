@@ -57,7 +57,7 @@ type Transaction = {
 /*
 　 2. ウォレットのリストを作成してください。要素数は5つとします。
 */
-const userWallet: Wallet[] = [
+export const userWallet: Wallet[] = [
    {walletId:1, username: "田中一郎", balance: 10000, method: 1, transactionHistroy: []},
    {walletId:2, username: "田中二郎", balance: 10000, method: 0, transactionHistroy: [], coupon: [coupon_100]},
    {walletId:3, username: "田中三郎", balance: 10000, method: 2, transactionHistroy: [], coupon: [coupon_100, coupon_500]},
@@ -79,7 +79,7 @@ const userWallet: Wallet[] = [
       ・処理対象のwalletを取り出す。（if文の中で皇族の処理をするのは読みずらい）
       ・クーポンの割引額取得。
 */
-const doSettlement = (walletId: number, paymentAmount: number): void => {
+export const doSettlement = (walletId: number, paymentAmount: number): void => {
 
    // 処理対象のウォレットのインデックスを所得する。
    function getwalltId(): number {
