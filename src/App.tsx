@@ -7,9 +7,9 @@ function App() {
   try {
     doSettlement(1,1000);
     doSettlement(5,1000);
-    doCharge(2,10000);
-    console.log("残高出力\n",showBalance(2));
-    console.log("取引履歴出力\n",getTransactionHistory(2));
+    doCharge(3,10000);
+    console.log("残高出力\n",showBalance(3));
+    console.log("取引履歴出力\n",getTransactionHistory(3));
   } catch(e) {
     console.error(e);
   }

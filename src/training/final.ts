@@ -21,15 +21,11 @@
    6. IDを指定して、ウォレットの残高を取得する機能を実装してください。
 */
 
-import { isNumberObject } from "util/types";
-
 type Coupon = {
   couponId: number;
   couponName: string;
   amount: number;
 };
-
-
 
 // enumではなくこちらを使うコーディングは要調査
 const PAYMENT_METHOD= {
@@ -146,7 +142,7 @@ export const doSettlement = (walletId: number, paymentAmount: number): void => {
 export const doCharge = (walletId: number, chargeAmount: number) => {
 
    // IDの存在精査
-   const getwalletId = (): number => { 
+   const getIndex = (): number => { 
       const indices = userWallets.map( (userWallet,index) => {
          if (userWallet.walletId === walletId) {
             return index;
@@ -156,32 +152,31 @@ export const doCharge = (walletId: number, chargeAmount: number) => {
       return indices[0];
    }
 
-   const targetWalletId = getwalletId();
-   console.log(targetWalletId);
-   if (typeof targetWalletId !== 'number') {
+   const targetWalletIndex = getIndex();
+   if (typeof targetWalletIndex !== 'number') {
       throw new Error("Can't Charge!!");
    }
    
    //残高更新
-   userWallets[targetWalletId].balance += chargeAmount;
+   userWallets[targetWalletIndex].balance += chargeAmount;
 
    // 取引履歴作成
    const transactionAchievement: Transaction = {
-      walletId: targetWalletId,
+      walletId: userWallets[targetWalletIndex].walletId,
       paymentAmount: chargeAmount,
       transactionType: TRANSACTION_TYPE_ENUM.チャージ,
       transactionDate: new Date(),
-      method: userWallets[targetWalletId].method,
-      balance: userWallets[targetWalletId].balance,
+      method: userWallets[targetWalletIndex].method,
+      balance: userWallets[targetWalletIndex].balance,
    }
 
-   userWallets[targetWalletId].transactionHistory.push(transactionAchievement);
+   userWallets[targetWalletIndex].transactionHistory.push(transactionAchievement);
 };
 
 export const getTransactionHistory = (walletId: number): Object[] => {
    
    // IDの存在精査
-   const getwalletId = (): number => { 
+   const getIndex = (): number => { 
       const indices = userWallets.map( (userWallet,index) => {
          if (userWallet.walletId === walletId) {
             return index;
@@ -191,18 +186,15 @@ export const getTransactionHistory = (walletId: number): Object[] => {
       return indices[0];
    }
 
-   const targetWalletId = getwalletId();
-   console.log(targetWalletId);
-   if (typeof targetWalletId !== 'number') {
+   const targetWalletIndex = getIndex();
+   if (typeof targetWalletIndex !== 'number') {
       throw new Error("Can't Show History!!");
    }
 
-   console.log("取引方法", PAYMENT_METHOD_ENUM[1] );
-
    const transactionHistoryList: Object[] = [];
 
-   if(userWallets[targetWalletId].transactionHistory) {
-      userWallets[targetWalletId].transactionHistory.forEach((sourceItem) => {
+   if(userWallets[targetWalletIndex].transactionHistory) {
+      userWallets[targetWalletIndex].transactionHistory.forEach((sourceItem) => {
          const targetItem: Object = {
             walletId: sourceItem.walletId,
             paymentAmount: sourceItem.paymentAmount,
@@ -222,7 +214,7 @@ export const getTransactionHistory = (walletId: number): Object[] => {
 export const showBalance = (walletId: number): number => {
 
    // IDの存在精査
-   const getwalletId = (): number => { 
+   const getIndex = (): number => { 
       const indices = userWallets.map( (userWallet,index) => {
          if (userWallet.walletId === walletId) {
             return index;
@@ -232,11 +224,11 @@ export const showBalance = (walletId: number): number => {
       return indices[0];
    }
 
-   const targetWalletId = getwalletId();
-   console.log(targetWalletId);
-   if (typeof targetWalletId !== 'number') {
+   const targetWalletIndex = getIndex();
+   console.log(targetWalletIndex);
+   if (typeof targetWalletIndex !== 'number') {
       throw new Error("Can't Show Balance!!");
    }
 
-   return userWallets[targetWalletId].balance;
+   return userWallets[targetWalletIndex].balance;
 };
