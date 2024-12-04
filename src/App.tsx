@@ -1,12 +1,19 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { doSettlement, userWallet } from './training/final';
+import { doSettlement, doCharge,userWallets, getTransactionHistory, showBalance } from './training/final';
 
 function App() {
-  doSettlement(1,1000);
-  doSettlement(5,1000);
-  console.log(userWallet);
+  try {
+    doSettlement(1,1000);
+    doSettlement(5,1000);
+    doCharge(2,10000);
+    console.log("残高出力\n",showBalance(2));
+    console.log("取引履歴出力\n",getTransactionHistory(2));
+  } catch(e) {
+    console.error(e);
+  }
+  console.log("処理後\n",userWallets);
   return (
     <div className="App">
       <header className="App-header">
