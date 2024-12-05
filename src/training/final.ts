@@ -40,16 +40,14 @@ const PAYMENT_METHOD= {
    }
 } as const;
 
-enum PAYMENT_METHOD_ENUM {
-   現金=0,
-   クレジットカード=1,
-   銀行振り込み=2,
-}
-
-enum TRANSACTION_TYPE_ENUM {
-   決済 = 0,
-   チャージ = 1,
-}
+const TRANSACTION_TYPE = {
+   決済:{
+      code: 0
+   },
+   チャージ:{
+      code: 1
+   },
+} as const
 
 const coupon_100: Coupon = { couponId: 1, couponName: "coupon_100",amount: 100 };
 const coupon_500: Coupon = { couponId: 2, couponName: "coupon_500", amount: 500 };
@@ -67,8 +65,8 @@ type Wallet = {
 type Transaction = {
    walletId: number;
    paymentAmount: number;
-   transactionType: TRANSACTION_TYPE_ENUM.決済 | TRANSACTION_TYPE_ENUM.チャージ;
-   method: PAYMENT_METHOD_ENUM.現金 | PAYMENT_METHOD_ENUM.クレジットカード | PAYMENT_METHOD_ENUM.銀行振り込み;
+   transactionType: 0 | 1;
+   method: 0 | 1 | 2;
    transactionDate: Date;
    balance: number;
 };
@@ -83,110 +81,57 @@ export const userWallets: Wallet[] = [
 
 export const doSettlement = (walletId: number, paymentAmount: number): void => {
 
-   // 処理対象のウォレットのインデックスを所得する。
-   const getIndex = (): number => { 
-      const indices = userWallets.map( (userWallet,index) => {
-         if (userWallet.walletId === walletId && userWallet.balance >= paymentAmount) {
-            return index;
-         }
-         return -999;
-      }).filter(index => index !== -999);
-      return indices[0];
-   }
    // 割引額を取得する。
    const getCouponAmount = (targetIndex: number): number => {
-
       const getTargetCouponAmount = ():number => {
          if (userWallets[targetIndex].coupon) {
             const couponAmount = userWallets[targetIndex].coupon.reduce(
                (max, coupon) => Math.max(max, coupon.amount as unknown as number), 0);
 
-            const unuseCouponList: Coupon[] = [];
-            userWallets[targetIndex].coupon.forEach( (couponItem) => {
-               if (couponItem.amount !== couponAmount) unuseCouponList.push(couponItem);
-            });
+            const unUseCouponList: Coupon[] = userWallets[targetIndex].coupon.filter(
+               (couponItem) => couponItem.amount !== couponAmount);
 
-            userWallets[targetIndex].coupon = unuseCouponList;
+            userWallets[targetIndex].coupon = unUseCouponList;
 
             return couponAmount;
          }
          return 0;
       }
-
       return getTargetCouponAmount(); 
    }
 
-   const targetWalletIndex = getIndex();
-   console.log(targetWalletIndex);
+   const targetWalletIndex = getIndex(walletId, paymentAmount);
    if (typeof targetWalletIndex !== 'number') {
       throw new Error("Can't Buy!!");
    }
 
-   const discountAmount = getCouponAmount(targetWalletIndex);
    // 残高更新
+   const discountAmount = getCouponAmount(targetWalletIndex);
    userWallets[targetWalletIndex].balance -= (paymentAmount - discountAmount);
 
    // 取引履歴作成
-   const transactionAchievement: Transaction = {
-      walletId: userWallets[targetWalletIndex].walletId,
-      paymentAmount: paymentAmount - discountAmount,
-      transactionType: TRANSACTION_TYPE_ENUM.決済,
-      transactionDate: new Date(),
-      method: userWallets[targetWalletIndex].method,
-      balance: userWallets[targetWalletIndex].balance,
-   }
-
-   userWallets[targetWalletIndex].transactionHistory.push(transactionAchievement);
+   userWallets[targetWalletIndex].transactionHistory.push(createTransactionAchievement(
+      targetWalletIndex, paymentAmount - discountAmount,TRANSACTION_TYPE.決済.code));
 }
 
 export const doCharge = (walletId: number, chargeAmount: number) => {
 
-   // IDの存在精査
-   const getIndex = (): number => { 
-      const indices = userWallets.map( (userWallet,index) => {
-         if (userWallet.walletId === walletId) {
-            return index;
-         }
-         return -999;
-      }).filter(index => index !== -999);
-      return indices[0];
-   }
-
-   const targetWalletIndex = getIndex();
+   const targetWalletIndex = getIndex(walletId);
    if (typeof targetWalletIndex !== 'number') {
       throw new Error("Can't Charge!!");
    }
    
-   //残高更新
+   // 残高更新
    userWallets[targetWalletIndex].balance += chargeAmount;
 
-   // 取引履歴作成
-   const transactionAchievement: Transaction = {
-      walletId: userWallets[targetWalletIndex].walletId,
-      paymentAmount: chargeAmount,
-      transactionType: TRANSACTION_TYPE_ENUM.チャージ,
-      transactionDate: new Date(),
-      method: userWallets[targetWalletIndex].method,
-      balance: userWallets[targetWalletIndex].balance,
-   }
-
-   userWallets[targetWalletIndex].transactionHistory.push(transactionAchievement);
+   // 取引履歴追加
+   userWallets[targetWalletIndex].transactionHistory.push(
+      createTransactionAchievement(targetWalletIndex, chargeAmount, TRANSACTION_TYPE.チャージ.code));
 };
 
 export const getTransactionHistory = (walletId: number): Object[] => {
    
-   // IDの存在精査
-   const getIndex = (): number => { 
-      const indices = userWallets.map( (userWallet,index) => {
-         if (userWallet.walletId === walletId) {
-            return index;
-         }
-         return -999;
-      }).filter(index => index !== -999);
-      return indices[0];
-   }
-
-   const targetWalletIndex = getIndex();
+   const targetWalletIndex = getIndex(walletId);
    if (typeof targetWalletIndex !== 'number') {
       throw new Error("Can't Show History!!");
    }
@@ -198,37 +143,59 @@ export const getTransactionHistory = (walletId: number): Object[] => {
          const targetItem: Object = {
             walletId: sourceItem.walletId,
             paymentAmount: sourceItem.paymentAmount,
-            transactionType: TRANSACTION_TYPE_ENUM[sourceItem.transactionType],
-            method: PAYMENT_METHOD_ENUM[sourceItem.method],
+            transactionType: Object.entries(TRANSACTION_TYPE)
+               .filter(([type, codeName]) => codeName.code === sourceItem.transactionType)[0][0],
+            method: Object.entries(PAYMENT_METHOD)
+               .filter(([type, codeName]) => codeName.code === sourceItem.method)[0][0],
             transactionDate: sourceItem.transactionDate,
-            balance: sourceItem.balance,   
+            balance: sourceItem.balance,
          }
          transactionHistoryList.push(targetItem);
       });
    }
-   
    return transactionHistoryList;
 };
 
-
 export const showBalance = (walletId: number): number => {
-
-   // IDの存在精査
-   const getIndex = (): number => { 
-      const indices = userWallets.map( (userWallet,index) => {
-         if (userWallet.walletId === walletId) {
-            return index;
-         }
-         return -999;
-      }).filter(index => index !== -999);
-      return indices[0];
-   }
-
-   const targetWalletIndex = getIndex();
-   console.log(targetWalletIndex);
+   const targetWalletIndex = getIndex(walletId);
    if (typeof targetWalletIndex !== 'number') {
       throw new Error("Can't Show Balance!!");
    }
-
    return userWallets[targetWalletIndex].balance;
 };
+
+/**
+ * 処理対象のウォレットのインデックスを取得する。（不正な場合-999を返却する）
+ * @param walletId ウォレットID
+ * @param paymentAmount 決済額
+ * @returns userWalletsの対象要素のインデックス
+ */
+const getIndex = (walletId: number, paymentAmount: number = 0): number => {
+   const indices = userWallets.map( (userWallet,index) => {
+      if (userWallet.walletId === walletId && userWallet.balance >= paymentAmount) {
+         return index;
+      }
+      return -999;
+   }).filter(index => index !== -999);
+
+   return indices[0];
+}
+
+/**
+ * 取引履歴を作成する。
+ * @param walletIndex userWalletsの対象要素のインデックス
+ * @param amount 取引額
+ * @param transactionType 取引方法
+ * @returns 取引履歴
+ */
+const createTransactionAchievement = (walletIndex: number, amount: number, 
+   transactionType: 0 | 1): Transaction => {
+   return {
+      walletId: userWallets[walletIndex].walletId,
+      paymentAmount: amount,
+      transactionType: transactionType,
+      transactionDate: new Date(),
+      method: userWallets[walletIndex].method,
+      balance: userWallets[walletIndex].balance,
+   }
+}

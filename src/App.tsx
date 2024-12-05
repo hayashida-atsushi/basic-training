@@ -5,9 +5,13 @@ import { doSettlement, doCharge,userWallets, getTransactionHistory, showBalance 
 
 function App() {
   try {
+    console.log("決済開始");
     doSettlement(1,1000);
     doSettlement(5,1000);
+    console.log("決済終了");
+    console.log("チャージ開始");
     doCharge(3,10000);
+    console.log("チャージ終了");
     console.log("残高出力\n",showBalance(3));
     console.log("取引履歴出力\n",getTransactionHistory(3));
   } catch(e) {
